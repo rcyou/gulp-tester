@@ -1,1 +1,1 @@
-function helloWord(){console.log("Hello Wordl!")}$(document).ready(function(){helloWord()});
+function helloWord(){console.log("Hello world")}$(document).ready(function(){helloWord()});

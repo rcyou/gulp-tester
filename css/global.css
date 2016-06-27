@@ -1,7 +1,9 @@
 body {
   background: #00a;
+  display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-transition: all 500ms ease;
   transition: all 500ms ease;
   color: white; }

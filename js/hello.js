@@ -1,5 +1,5 @@
 function helloWord() {
-	console.log('Hello Wordl!');
+	console.log('Hello world');
 }
 
 $(document).ready(function() {

@@ -3,12 +3,6 @@
  Global JavaScript functions, events, and actions used throughout the website.
  ========================================================================== */
 
-// Load REM polyfill if necessary
-Modernizr.load({
-	test: Modernizr.cssremunit,
-	nope: '/js/modernizr.rem.min.js'
-});
-
 var mobile_view = false;
 
 var menu_index = 0;
@@ -186,42 +180,6 @@ function toggle_submenu(el) {
 	}
 }
 
-/**
- * Generic colorbox functionality. Checks to see if colorbox has been loaded - if not, uses jQuery's
- * AJAX method to dynamically load the CSS and JavaScript.
- *
- * @param    object    settings            Object containg colorbox settings (overwrites defaults)
- *
- * @return   null
- */
-function open_colorbox(settings) {
-	if (typeof(jQuery().colorbox) != 'function') {
-		$.ajax({
-			url: '/css/jquery.colorbox.css', 
-			cache: true,
-			success: function(data) {
-				$('body').append('<style type="text/css">' + data + '</style>');
-				$.ajax({
-					url: '/js/jquery.colorbox.min.js',
-					cache: true,
-					dataType: 'script',
-					success: function(data, status) {
-						open_colorbox(settings);
-					}
-				});
-			}
-		});
-	} else {
-		var colorbox_settings = {
-			close: 'Close',
-			opacity: 0.7
-		};
-		
-		$.extend(colorbox_settings, settings);
-		$.colorbox(colorbox_settings);
-	}
-}
-
 var custom_list_filter_settings;
 
 /**
@@ -333,102 +291,8 @@ var list_filter_hash = function(category) {
 	document.location.hash = '#' + category;
 }
 
-var load_jquery_cycle_attempts = 0;
-
-/**
- * Load and include jQuery Cycle plugin.
- *
- * @param    function  callback                Callback function (optional)
- * @param    object    callback_el             jQuery Object to include with callback function
- *
- * @return   null
- */
-var load_jquery_cycle = function(callback, callback_el) {
-	if (jQuery().cycle) {
-		if (typeof(callback) == 'function') {
-			callback(callback_el);
-		}
-		return true;
-	}
-
-	if (load_jquery_cycle_attempts < 10) {
-		load_jquery_cycle_attempts++;
-
-		$.ajax({
-			url: '/js/jquery.cycle2.min.js',
-			cache: true,
-			dataType: 'script',
-			error: function() {
-				load_jquery_cycle_attempts = 10;
-			},
-			success: function(data, status) {
-				load_jquery_cycle_attempts = 0;
-				if (typeof(callback) == 'function') {
-					callback(callback_el);
-				}
-			}
-		});
-	}
-
-	return;
-}
-
-
-// AJAX load attempt count (news_widget)
-var news_widget_count = 0;
-
-/**
- * News Widget with scroll up effect as needed.
- *
- * @return   null
- */
-function news_widget() {
-	news_widget_count++;
-
-	var news_items_length = $('.news_widget.news_slide .news_item').length;
-	if (news_items_length === 1) {
-		$('.news_widget.news_slide .news_item:first').show();
-	} else if (news_items_length > 1) {
-		if (jQuery().cycle) {
-			$('.news_widget.news_slide .articles').cycle({
-				fx: 'scrollUp',
-				pause: true,
-				timeout: 6000
-			});
-		} else if (news_widget_count < 10) {
-			$.ajax({
-				url: '/js/jquery.cycle.min.js',
-				cache: true,
-				dataType: 'script',
-				success: function(data, status, jqxhr) {
-					news_widget();
-				}
-			})
-		} else if (typeof(console) == 'object') {
-			console.log('[Site OnCall] Cannot load jQuery Cycle plugin.');
-		}
-	}
-}
-
-//Change words on click in the header text
-function change_words() {
-	var default_word = $('.descriptive_noun').text();
-	var is_default = true;
-
-	var myArray = [default_word, "foo", "bar", "baz", "chuck"];
-	var myIndex = 1;
-
-	$('.descriptive_noun').on('click', function(event) {
-		$(this).fadeOut(250, function() {
-			$(this).text(myArray[myIndex++ % myArray.length]).fadeIn(250);
-		});
-	});
-}
 
 $(document).ready(function() {
-
-	//Change words on click in the header text
-	change_words();
 
 	// Resize window events
 	resize_window();
@@ -462,51 +326,6 @@ $(document).ready(function() {
 		var id = $(this).prop('id').substring(5);
 		$('#short-' + id).show();
 		$('#long-' + id).hide();
-	});
-
-	// Default Colorbox
-	$('.cbox').click(function(event) {
-		event.preventDefault();
-		open_colorbox({
-			href: $(this).prop('href'),
-			title: $(this).prop('title')
-		});
-	});
-
-	$('#close_preview').on( 'click', function( event ) {
-
-		event.preventDefault();
-
-		window.close();
-
-	});
-
-	
-	// Initialize News Widget
-		news_widget();
-
-	// Countable - counts words in article and figures out how long it will take to read
-	Countable.once($('.full_blog_article')[0], function (counter) {
-	    var wpm = 200,
-	        estimatedRaw = counter.words / wpm,
-	        minutes = Math.round(estimatedRaw);
-
-	    if ( minutes < 1 )  {
-	    	 var effectiveTime = "just a few seconds";
-	    }
-	    else if (minutes === 1 ) {
-	    	var effectiveTime = minutes + " minute";
-	    }
-	    else {
-	    	var effectiveTime = minutes + " minutes";
-	    }
-
-	    $('.reading_time').text(effectiveTime);
-
-	    // var effectiveTime = (minutes < 1) ? "just a few seconds" : minutes + " minutes" || (minutes === 1) ? minutes + " minute" : minutes + " minutes";
-
-	    //display it
-	    console.log(effectiveTime);
 	});
 
 });
